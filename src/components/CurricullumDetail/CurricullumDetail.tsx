@@ -4,6 +4,8 @@ import React from "react";
 import { IEventSession } from "../../interfaces/IEventSession";
 
 import CurricullumList from "../CurricullumList";
+import { Button } from "../elements";
+import { Add } from "@mui/icons-material";
 
 const BorderBox = styled(Box)`
   border: 1.75px solid ${({ theme }) => theme.palette.grey["300"]};
@@ -12,7 +14,9 @@ const BorderBox = styled(Box)`
 
 export default function CurricullumDetail() {
   const EventCtx = useEventCtx();
-  const [sessions, setSessions] = React.useState<IEventSession[] | []>([]);
+  const [sessions, setSessions] = React.useState<IEventSession[] | []>(
+    EventCtx.sessions
+  );
   const [collapsedId, setCollapsedId] = React.useState<string | null>(null);
 
   const handleExpandSession = (e: React.SyntheticEvent) => {
@@ -20,9 +24,14 @@ export default function CurricullumDetail() {
     setCollapsedId((id) => (id === currentId ? null : currentId));
   };
 
-  React.useEffect(() => {
-    setSessions(EventCtx.sessions);
-  }, [EventCtx.sessions]);
+  const handleAddSession = async () => {
+    try {
+      const newSession = await EventCtx.addSession("New Session");
+      setSessions((sessions) => [...sessions, newSession]);
+    } catch (error) {
+      throw error;
+    }
+  };
 
   return (
     <>
@@ -42,6 +51,14 @@ export default function CurricullumDetail() {
           collapsedId={collapsedId}
         />
       </BorderBox>
+      <Box justifyContent="flex-end" display="flex">
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          onClick={handleAddSession}>
+          Add Session
+        </Button>
+      </Box>
     </>
   );
 }

@@ -5,9 +5,11 @@ import { IEventSession } from "../interfaces/IEventSession";
 
 const defaultValue: IEventCtx = {
   addLesson: () => new Promise<void>(() => {}),
-  addSession: () => new Promise<void>(() => {}),
+  addSession: () => new Promise<IEventSession>(() => {}),
   deleteLesson: () => new Promise<void>(() => {}),
   deleteSession: () => new Promise<void>(() => {}),
+  updateLessonName: () => new Promise<void>(() => {}),
+  updateSessionName: () => new Promise<void>(() => {}),
   sessions: [],
 };
 
@@ -51,16 +53,16 @@ export default function EventCtxProvider(
 
   defaultValue.sessions = sessions;
   defaultValue.addSession = (name) => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<IEventSession>((resolve, reject) => {
       try {
-        sessions[sessions.length] = {
+        const newSession: IEventSession = {
           id: uuidv4(),
           name: name,
           lessons: [],
         };
-        setSessions(sessions);
-        updateSavedSessions(sessions);
-        resolve();
+        setSessions((sessions) => [...sessions, newSession]);
+        updateSavedSessions([...sessions, newSession]);
+        resolve(newSession);
       } catch {
         reject();
       }
@@ -103,6 +105,31 @@ export default function EventCtxProvider(
       if (lessonIndex === -1)
         reject("Failed to delete lesson: Lesson not found");
       sessions[sessionIndex].lessons.splice(lessonIndex, 1);
+      setSessions(sessions);
+      updateSavedSessions(sessions);
+      resolve();
+    });
+  defaultValue.updateSessionName = (sessionId, sessionName) =>
+    new Promise<void>((resolve, reject) => {
+      const sessionIndex = sessions.map((x) => x.id).indexOf(sessionId);
+      if (sessionIndex === -1)
+        reject("Failed to update session: Session not found");
+      sessions[sessionIndex].name = sessionName;
+      setSessions(sessions);
+      updateSavedSessions(sessions);
+      resolve();
+    });
+  defaultValue.updateLessonName = (sessionId, lessonId, lessonName) =>
+    new Promise<void>((resolve, reject) => {
+      const sessionIndex = sessions.map((x) => x.id).indexOf(sessionId);
+      if (sessionIndex === -1)
+        reject("Failed to update lesson: Session not found");
+      const lessonIndex = sessions[sessionIndex].lessons
+        .map((x) => x.id)
+        .indexOf(lessonId);
+      if (lessonIndex === -1)
+        reject("Failed to update lesson: Lesson not found");
+      sessions[sessionIndex].lessons[lessonIndex].name = lessonName;
       setSessions(sessions);
       updateSavedSessions(sessions);
       resolve();
