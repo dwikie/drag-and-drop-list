@@ -1,6 +1,7 @@
 import { Box, Container, Grid } from "@mui/material";
 import React from "react";
-import { EventTabs, EventTabsContent, Header, Title } from "../components";
+import { EventTabs, Header, Title } from "../components";
+import { Curricullum } from "../containers";
 
 export default function Index() {
   const [activeTab, setActiveTab] = React.useState<number>(0);
@@ -11,7 +12,7 @@ export default function Index() {
         <Grid gap={4} display="flex" flexDirection="column">
           <Title />
           <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-          <EventTabsContent />
+          <Curricullum />
         </Grid>
       </Container>
     </Box>

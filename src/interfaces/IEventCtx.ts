@@ -1,9 +1,10 @@
-import { IAddEventLesson } from "./IEventLesson";
-import { IEventSession } from "./IEventSession";
+import { ILesson, ISession } from "./ICurricullum";
 
 export default interface IEventCtx {
-  addSession: (name: string) => Promise<IEventSession>;
-  addLesson: (sessionId: string, args: IAddEventLesson) => Promise<void>;
+  addSession: (name: string) => Promise<ISession>;
+  findSession: (id: string) => Promise<ISession>;
+  addLesson: (sessionId: string, lesson: ILesson) => Promise<ILesson>;
+  findLesson: (sessionId: string, lessonId: string) => Promise<ILesson>;
   deleteSession: (sessionId: string) => Promise<void>;
   deleteLesson: (sessionId: string, lessonId: string) => Promise<void>;
   updateSessionName: (sessionId: string, sessionName: string) => Promise<void>;
@@ -12,5 +13,5 @@ export default interface IEventCtx {
     lessonId: string,
     lessonName: string
   ) => Promise<void>;
-  sessions: IEventSession[] | [];
+  sessions: ISession[] | [];
 }

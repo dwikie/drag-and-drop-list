@@ -1,7 +1,7 @@
 import { Box, styled, Typography } from "@mui/material";
 import { useEventCtx } from "../../contexts/EventCtx";
 import React from "react";
-import { IEventSession } from "../../interfaces/IEventSession";
+import { ISession } from "../../interfaces/ICurricullum";
 
 import CurricullumList from "../CurricullumList";
 import { Button } from "../elements";
@@ -14,7 +14,7 @@ const BorderBox = styled(Box)`
 
 export default function CurricullumDetail() {
   const EventCtx = useEventCtx();
-  const [sessions, setSessions] = React.useState<IEventSession[] | []>(
+  const [sessions, setSessions] = React.useState<ISession[] | []>(
     EventCtx.sessions
   );
   const [collapsedId, setCollapsedId] = React.useState<string | null>(null);

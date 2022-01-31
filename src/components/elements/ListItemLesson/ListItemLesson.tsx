@@ -1,13 +1,13 @@
 import { Collapse } from "@mui/material";
 import React from "react";
-import { IEventLesson } from "../../../interfaces/IEventLesson";
+import { ILesson } from "../../../interfaces/ICurricullum";
 
 export default function ListItemLesson({
   collapsed,
   lessons,
 }: {
   collapsed: boolean;
-  lessons: IEventLesson[];
+  lessons: ILesson[];
 }) {
   return (
     <Collapse in={collapsed || false} timeout="auto" unmountOnExit>

@@ -1,13 +1,15 @@
 import { v4 as uuidv4 } from "uuid";
 import React from "react";
 import IEventCtx from "../interfaces/IEventCtx";
-import { IEventSession } from "../interfaces/IEventSession";
+import { ILesson, ISession } from "../interfaces/ICurricullum";
 
 const defaultValue: IEventCtx = {
-  addLesson: () => new Promise<void>(() => {}),
-  addSession: () => new Promise<IEventSession>(() => {}),
+  addLesson: () => new Promise<ILesson>(() => {}),
+  addSession: () => new Promise<ISession>(() => {}),
   deleteLesson: () => new Promise<void>(() => {}),
   deleteSession: () => new Promise<void>(() => {}),
+  findLesson: () => new Promise<ILesson>(() => {}),
+  findSession: () => new Promise<ISession>(() => {}),
   updateLessonName: () => new Promise<void>(() => {}),
   updateSessionName: () => new Promise<void>(() => {}),
   sessions: [],
@@ -23,7 +25,7 @@ export const useEventCtx = () => {
   return Ctx;
 };
 
-const updateSavedSessions = (sessions: IEventSession[]): void => {
+const updateSavedSessions = (sessions: ISession[]): void => {
   if (typeof Storage === "undefined") {
     console.warn(
       "Browser does not support Storage: All data that has been added/modified is not saved"
@@ -33,12 +35,12 @@ const updateSavedSessions = (sessions: IEventSession[]): void => {
   sessionStorage.setItem("SESSION_DATA", JSON.stringify(sessions));
 };
 
-const getSavedSessions = (): IEventSession[] | [] => {
+const getSavedSessions = (): ISession[] | [] => {
   if (typeof Storage === "undefined") return [];
   const SESSION_DATA_STRING: string | null =
     sessionStorage.getItem("SESSION_DATA");
   if (SESSION_DATA_STRING !== null) {
-    const SESSION_DATA: IEventSession[] = JSON.parse(SESSION_DATA_STRING);
+    const SESSION_DATA: ISession[] = JSON.parse(SESSION_DATA_STRING);
     return SESSION_DATA;
   }
   return [];
@@ -47,20 +49,21 @@ const getSavedSessions = (): IEventSession[] | [] => {
 export default function EventCtxProvider(
   props: React.PropsWithChildren<React.ReactNode>
 ) {
-  const [sessions, setSessions] = React.useState<IEventSession[] | []>(
+  const [sessions, setSessions] = React.useState<ISession[] | []>(
     getSavedSessions()
   );
 
   defaultValue.sessions = sessions;
   defaultValue.addSession = (name) => {
-    return new Promise<IEventSession>((resolve, reject) => {
+    return new Promise<ISession>((resolve, reject) => {
       try {
-        const newSession: IEventSession = {
+        const newSession: ISession = {
           id: uuidv4(),
           name: name,
           lessons: [],
         };
         setSessions((sessions) => [...sessions, newSession]);
+        defaultValue.sessions = [...sessions, newSession];
         updateSavedSessions([...sessions, newSession]);
         resolve(newSession);
       } catch {
@@ -68,21 +71,22 @@ export default function EventCtxProvider(
       }
     });
   };
-  defaultValue.addLesson = (sessionId, lessonDetail) =>
-    new Promise<void>((resolve, reject) => {
+  defaultValue.addLesson = (sessionId, lesson) =>
+    new Promise<ILesson>((resolve, reject) => {
       const sessionIndex = sessions.map((x) => x.id).indexOf(sessionId);
       if (sessionIndex === -1)
         reject("Failed to add lesson: Session not found");
+      const newLesson = {
+        ...lesson,
+        id: uuidv4(),
+      };
       sessions[sessionIndex].lessons = [
         ...sessions[sessionIndex].lessons,
-        {
-          id: uuidv4(),
-          ...lessonDetail,
-        },
+        newLesson,
       ];
       setSessions(sessions);
       updateSavedSessions(sessions);
-      resolve();
+      resolve(newLesson);
     });
   defaultValue.deleteSession = (sessionId) =>
     new Promise<void>((resolve, reject) => {
